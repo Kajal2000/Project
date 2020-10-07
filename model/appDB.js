@@ -43,12 +43,10 @@ let del_data = (Id) => {
 let get_by_id = (Id) => {
     return knex.select("*").from("Assign_Model")
     .join('Registration','Assign_Model.Id',"=",'Registration.Id')
-    // .select("Assign_Model.Id","Project","Task","Registration.Id","First_Name","Last_Name")
     .where("Assign_Model.Id",Id)
 };
 
 //Authenticated users should be able to see only the assigned modules
-
 var user_get_data = (search_value)=>{
     return knex.select("*")
     .from("Assign_Model")

@@ -155,7 +155,6 @@ app.get("/getApis/:Id",(req,res) => {
 })
 
 //Authenticated users should be able to see only the assigned modules
-
 app.get("/AdminAPI/:search_value",(req,res)=>{
     var search_value = req.params.search_value
     let alltoken = req.headers.cookie
