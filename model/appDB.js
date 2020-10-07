@@ -47,5 +47,15 @@ let get_by_id = (Id) => {
     .where("Assign_Model.Id",Id)
 };
 
+//Authenticated users should be able to see only the assigned modules
+
+var user_get_data = (search_value)=>{
+    return knex.select("*")
+    .from("Assign_Model")
+    .join('Registration','Assign_Model.Id',"=",'Registration.Id')
+    .where('First_Name','like',  '%' +search_value+ '%')
+}
+
 module.exports = {insert_data,login_email,login_Password,
-    admin_post,get_data,update,del_data,get_by_id}
+    admin_post,get_data,update,del_data,get_by_id,
+    user_get_data}

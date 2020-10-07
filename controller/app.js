@@ -52,7 +52,7 @@ app.post("/postApi",(req,res)=>{
     jwt.verify(token,"Neha",(err,result)=>{
         // console.log(result);
         var id = result["app"][0]["Id"]
-        var Admin = result["app"][0]["User_Role"]
+        var Admin = result["app"][0]["Admin"]
         if (Admin == "True"){
             var data = {
                 Project : req.body.Project,
@@ -75,7 +75,7 @@ app.get("/getApi",(req,res)=>{
     var token = alltoken.split('=')
     token = (token[token.length-2]).slice(11,500)
     jwt.verify(token,"Neha",(err,result)=>{
-    var Admin = result["app"][0]["User_Role"]
+        var Admin = result["app"][0]["Admin"]
     if (Admin == "True"){
         var data = appdb.get_data()
         data.then((res_data)=>{
@@ -100,7 +100,7 @@ app.put("/adminApi/:Id", (req, res) => {
     var token = alltoken.split('=')
     token = (token[token.length-2]).slice(11,500)
     jwt.verify(token,"Neha",(err,result)=>{
-        var Admin = result["app"][0]["User_Role"]
+        var Admin = result["app"][0]["Admin"]
         if (Admin == "True"){
             var update_data = {
                 Project : req.body.Project,
@@ -123,7 +123,7 @@ app.delete("/del_Api/:Id", (req, res) => {
     var token = alltoken.split('=')
     token = (token[token.length-2]).slice(11,500)
     jwt.verify(token,"Neha",(err,result)=>{
-        var Admin = result["app"][0]["User_Role"]
+        var Admin = result["app"][0]["Admin"]
         if (Admin == "True"){
             appdb.del_data(Id)
             .then(() => {
@@ -138,12 +138,45 @@ app.delete("/del_Api/:Id", (req, res) => {
 // From this Api will get current assignment
 app.get("/getApis/:Id",(req,res) => {
     var Id = req.params.Id
-    appdb.get_by_id(Id)
-    .then((resp_data)=>{
-        console.log(resp_data);
-    }).catch((err)=>{
-        console.log(err);
+    let alltoken = req.headers.cookie
+    var token = alltoken.split('=')
+    token = (token[token.length-2]).slice(11,500)
+    jwt.verify(token,"Neha",(err,result)=>{
+        var Admin = result["app"][0]["Admin"]
+        if (Admin == "True"){
+            appdb.get_by_id(Id)
+            .then((resp_data)=>{
+                console.log(resp_data);
+            }).catch((err)=>{
+                console.log(err);
+            })
+        }
     })
+})
+
+//Authenticated users should be able to see only the assigned modules
+
+app.get("/AdminAPI/:search_value",(req,res)=>{
+    var search_value = req.params.search_value
+    let alltoken = req.headers.cookie
+    var token = alltoken.split('=')
+    token = (token[token.length-2]).slice(11,500)
+    jwt.verify(token,"Neha",(err,result)=>{
+        var user_name = result["app"][0]["First_Name"]
+        var list = []
+        if (user_name == search_value){
+            appdb.user_get_data(search_value)
+            .then((resp_data)=>{
+                project = resp_data[0]["Project"]
+                task = resp_data[0]["Task"]
+                name = resp_data[0]["First_Name"]
+                list.push(name,project,task)
+            res.send(list)
+            }).catch((err)=>{
+                console.log(err);
+            })
+        }
+    }) 
 })
 
 module.exports = app;
