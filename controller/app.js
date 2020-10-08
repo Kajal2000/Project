@@ -10,7 +10,7 @@ app.post("/regApi", (req, res) => {
         Last_Name: req.body.Last_Name,
         Email: req.body.Email,
         Password: req.body.Password,
-        User_Role: req.body.User_Role
+        Admin: req.body.Admin
     }
     appdb.insert_data(post_data)
     .then(() => {
@@ -75,24 +75,25 @@ app.get("/getApi",(req,res)=>{
     var token = alltoken.split('=')
     token = (token[token.length-2]).slice(11,500)
     jwt.verify(token,"Neha",(err,result)=>{
+        // console.log(result);
         var Admin = result["app"][0]["Admin"]
-    if (Admin == "True"){
-        var data = appdb.get_data()
-        data.then((res_data)=>{
-            // console.log(res_data);
-            var data_list = []
-            for(var i = 0;i<res_data.length; i++){
-                var Project = res_data[i]["Project"]
-                data_list.push(Project)
-            }
-            res.send(data_list)
-        }).catch((err)=>{
+        if (Admin == "True"){
+            // console.log(Admin);
+            var data = appdb.get_data()
+            data.then((res_data)=>{
+                // console.log(res_data);
+                var data_list = []
+                for(var i = 0;i<res_data.length; i++){
+                    var Project = res_data[i]["Project"]
+                    data_list.push(Project)
+                }
+                res.send(data_list)
+            }).catch((err)=>{
             console.log(err) 
-        })
-    }
+            })
+        }
     })
 })
-
 // Update Api
 app.put("/adminApi/:Id", (req, res) => {
     var Id = req.params.Id
@@ -166,11 +167,12 @@ app.get("/AdminAPI/:search_value",(req,res)=>{
         if (user_name == search_value){
             appdb.user_get_data(search_value)
             .then((resp_data)=>{
+                // console.log(resp_data);
                 project = resp_data[0]["Project"]
                 task = resp_data[0]["Task"]
                 name = resp_data[0]["First_Name"]
                 list.push(name,project,task)
-            res.send(list)
+                res.send(list)
             }).catch((err)=>{
                 console.log(err);
             })
